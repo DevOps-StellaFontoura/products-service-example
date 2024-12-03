@@ -23,4 +23,4 @@ jobs:
           -H "Accept: application/vnd.github.everest-preview+json" \
           -H "Authorization: Bearer $GITHUB_TOKEN" \
           https://api.github.com/repos/DevOps-StellaFontoura/DevOps/dispatches \
-          -d '{"event_type": "sonarcloud-analysis", "client_payload": {"repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}"}}'
+          -d '{"event_type": "test-event", "client_payload": {"repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}"}}'
