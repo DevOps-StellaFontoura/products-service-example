@@ -60,9 +60,10 @@ jobs:
           env: ${{ env.env }}
 
       - name: Push Docker image to ECR
-        run: docker push ${{ env.uri }}:latest
+        run: docker push ${{ env.uri }}:${{ env.env }}
         env:
           uri: ${{ env.uri }}
+          env: ${{ env.env }}
 
       - name: Deploy to ECS
         run: aws ecs update-service --cluster backend-cluster-${{ env.env }} --service backend-app-service-products-${{ env.env }} --force-new-deployment
