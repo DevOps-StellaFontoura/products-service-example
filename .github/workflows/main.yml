@@ -29,7 +29,7 @@ jobs:
 
       # Construcción de la imagen Docker
       - name: Build Docker Image
-        run: docker build -t products-service .
+        run: docker build -t products-service:latest .
       
       - name: Login to Amazon ECR
         id: login-ecr
@@ -42,12 +42,12 @@ jobs:
 
       # Etiquetar la imagen Docker con la URI del ambiente correspondiente
       - name: Tag Docker image
-        run: docker tag products-service:products-service ${{ env.uri }}:products-service
+        run: docker tag products-service:latest ${{ env.uri }}:latest
         env:
           uri: ${{ env.uri }}
 
       - name: Push Docker image to ECR
-        run: docker push ${{ env.uri }}:products-service
+        run: docker push ${{ env.uri }}:latest
         env:
           uri: ${{ env.uri }}
 
