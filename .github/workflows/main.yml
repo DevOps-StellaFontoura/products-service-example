@@ -1,0 +1,61 @@
+name: Build Docker Image and upload to AWS
+
+on:
+   push:
+     branches:
+       - main
+       - staging
+       - development
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout del repositorio DevOps
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Determinar el ambiente en base a la rama
+      - name: Set ECR URI
+        id: ecr-uri
+        run: |
+            if [[ "${{ github.ref_name }}" == "main" ]]; then
+               echo "uri=${{ vars.URI_ECR_PRODUCTS_PROD }}" >> $GITHUB_ENV
+            elif [[ "${{ github.ref_name }}" == "staging" ]]; then
+               echo "uri=${{ vars.URI_ECR_PRODUCTS_QA }}" >> $GITHUB_ENV
+            elif [[ "${{ github.ref_name }}" == "development" ]]; then
+               echo "uri=${{ vars.URI_ECR_PRODUCTS_DEV }}" >> $GITHUB_ENV
+            fi
+
+      # Construcción de la imagen Docker
+      - name: Build Docker Image
+        run: docker build -t products-service .
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: 'us-east-1'
+
+      # Etiquetar la imagen Docker con la URI del ambiente correspondiente
+      - name: Tag Docker image
+        run: docker tag products-service:products-service ${{ env.uri }}:products-service
+        env:
+          uri: ${{ env.uri }}
+
+      - name: Push Docker image to ECR
+        run: docker push ${{ env.uri }}:products-service
+        env:
+          uri: ${{ env.uri }}
+
+      - name: Deploy to ECS
+        run: aws ecs update-service --cluster nuestro-cluster --service nuestro-service --force-new-deployment
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: 'us-east-1'
+          uri: ${{ env.uri }}
