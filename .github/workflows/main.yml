@@ -16,6 +16,18 @@ jobs:
         uses: actions/checkout@v2
 
       # Determinar el ambiente en base a la rama
+      - name: Determine Environment
+        id: env
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "env=prod" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "staging" ]]; then
+            echo "env=qa" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "development" ]]; then
+            echo "env=dev" >> $GITHUB_ENV
+          fi
+
+      # Determinar el ambiente en base a la rama
       - name: Set ECR URI
         id: ecr-uri
         run: |
@@ -52,10 +64,11 @@ jobs:
           uri: ${{ env.uri }}
 
       - name: Deploy to ECS
-        run: aws ecs update-service --cluster nuestro-cluster --service nuestro-service --force-new-deployment
+        run: aws ecs update-service --cluster backend-cluster-${{ env.env }} --service backend-app-service-products-${{ env.env }} --force-new-deployment
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: 'us-east-1'
           uri: ${{ env.uri }}
+          env: ${{ env.env }}
