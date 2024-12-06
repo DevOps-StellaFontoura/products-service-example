@@ -6,6 +6,7 @@ on:
       - main
       - staging
       - development
+      
 jobs:
   build-docker:
     runs-on: ubuntu-latest
