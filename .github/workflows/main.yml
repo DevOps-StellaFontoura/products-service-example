@@ -5,8 +5,7 @@ on:
     branches:
       - main
       - staging
-      - development
-      
+      - development      
 jobs:
   build-docker:
     runs-on: ubuntu-latest
