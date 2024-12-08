@@ -1,4 +1,6 @@
 # Paso 1: Construir la aplicación
+
+# Se utiliza una imagen de Maven para compilar la aplicación
 FROM maven:3.8.5-openjdk-17-slim AS builder
 
 # Establecer el directorio de trabajo para el build
@@ -11,6 +13,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Paso 2: Crear la imagen de ejecución
+# Se utiliza una imagen de OpenJDK para ejecutar la aplicación
 FROM openjdk:17-jdk-slim
 
 # Establecer el directorio de trabajo para la ejecución
