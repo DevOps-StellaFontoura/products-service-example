@@ -12,18 +12,18 @@ import uy.edu.ort.devops.productsserviceexample.logic.ProductsLogic;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping
 public class ProductsEndpoint {
 
     @Autowired
     private ProductsLogic logic;
 
-    @GetMapping("")
+    @GetMapping("/products")
     public Collection<Product> index() {
         return logic.list();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/products/{id}")
     public ResponseEntity getProduct(@PathVariable("id") String id) {
         if (logic.hasProduct(id)) {
             Product product = logic.getProduct(id);
@@ -33,4 +33,8 @@ public class ProductsEndpoint {
         }
     }
 
+    @GetMapping("/healthcheck")
+    public String healthCheck() {
+        return "Health Passed";
+    }
 }
